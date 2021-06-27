@@ -1,6 +1,18 @@
 version: "3.7"
 
 services:
+  database_takeacar:
+    image: postgres
+    container_name: database_takeacar
+    restart: always
+    ports:
+      - 5432:5432
+    environment: 
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=takeacar
+    volumes:
+      - pgdata:/data/postgres
   app:
     build: .
     container_name: takeacar
@@ -8,3 +20,7 @@ services:
       - 3333:3333
     volumes:
       - .:/usr/app
+
+volumes:
+  pgdata:
+    driver: local
