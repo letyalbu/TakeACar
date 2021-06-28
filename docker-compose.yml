@@ -17,6 +17,7 @@ services:
   app:
     build: .
     container_name: takeacar
+    restart: always
     ports:
       - 3333:3333
       - 9229:9229 
