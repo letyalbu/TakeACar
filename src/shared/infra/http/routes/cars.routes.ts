@@ -5,6 +5,7 @@ import uploadConfig from "@config/upload";
 import { CreateCarController } from "@modules/cars/useCases/createCar/CreateCarController";
 import { CreateCarSpecificationController } from "@modules/cars/useCases/createCarSpecification/CreateCarSpecificationController";
 import { ListAvailableCarsController } from "@modules/cars/useCases/listAvailableCars/ListAvailableCarsController";
+import { RemoveCarImagesController } from "@modules/cars/useCases/removeCarImages/RemoveCarImagesController";
 import { UploadCarImagesController } from "@modules/cars/useCases/UploadCarImages/UploadCarImagesController";
 
 import { ensureAdmin } from "../middlewares/ensureAdmin";
@@ -16,6 +17,7 @@ const createCarController = new CreateCarController();
 const listAvailableCarsController = new ListAvailableCarsController();
 const createCarSpecificationController = new CreateCarSpecificationController();
 const uploadCarImagesController = new UploadCarImagesController();
+const removeCarImagesController = new RemoveCarImagesController();
 
 const uploadCarImages = multer(uploadConfig.upload("./tmp/carImages"));
 
@@ -41,6 +43,13 @@ carsRoutes.post(
   ensureAdmin,
   uploadCarImages.array("images"),
   uploadCarImagesController.handle
+);
+
+carsRoutes.delete(
+  "/images/delete",
+  ensureAuthenticated,
+  ensureAdmin,
+  removeCarImagesController.handle
 );
 
 export { carsRoutes };
