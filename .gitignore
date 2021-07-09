@@ -2,3 +2,5 @@ node_modules
 tmp/avatar/*
 !tmp/avatar/.gitkeep
 README.md
+tmp/carImages/*
+!tmp/carImages/.gitkeep
