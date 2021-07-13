@@ -5,3 +5,4 @@ README.md
 tmp/carImages/*
 !tmp/carImages/.gitkeep
 yarn-error.log
+yarn.lock
