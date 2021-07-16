@@ -31,14 +31,14 @@ carsRoutes.post(
 carsRoutes.get("/available", listAvailableCarsController.handle);
 
 carsRoutes.post(
-  "/specifications/:car_id",
+  "/specifications/:id",
   ensureAuthenticated,
   ensureAdmin,
   createCarSpecificationController.handle
 );
 
 carsRoutes.post(
-  "/images/:car_id",
+  "/images/:id",
   ensureAuthenticated,
   ensureAdmin,
   uploadCarImages.array("images"),

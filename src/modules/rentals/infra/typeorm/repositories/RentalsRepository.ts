@@ -13,6 +13,9 @@ class RentalsRepository implements IRentalsRepository {
   }
 
   async create({
+    id,
+    end_date,
+    total,
     user_id,
     car_id,
     expected_return_date,
@@ -21,6 +24,9 @@ class RentalsRepository implements IRentalsRepository {
       user_id,
       car_id,
       expected_return_date,
+      id,
+      end_date,
+      total,
     });
 
     await this.repository.save(rental);
@@ -38,6 +44,12 @@ class RentalsRepository implements IRentalsRepository {
     const openByCar = await this.repository.findOne({ car_id });
 
     return openByCar;
+  }
+
+  async findById(id: string): Promise<Rental> {
+    const rental = await this.repository.findOne(id);
+
+    return rental;
   }
 }
 

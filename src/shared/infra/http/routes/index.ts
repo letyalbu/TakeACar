@@ -13,7 +13,7 @@ router.use("/categories", categoriesRoutes);
 router.use("/specifications", specificationsRoutes);
 router.use("/users", usersRoutes);
 router.use("/cars", carsRoutes);
-router.use("/rental", rentalsRoutes);
+router.use("/rentals", rentalsRoutes);
 router.use(authenticateRoutes);
 
 export { router };
