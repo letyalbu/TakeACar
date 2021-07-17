@@ -91,7 +91,7 @@ paths:
   /sessions:
     post:
       tags: 
-        - User
+        - Session
       summary: Authenticate a user
       description: Authenticate a user
       requestBody:
@@ -104,28 +104,71 @@ paths:
           description: OK
         400:
           description: Email or password incorrect!
-  
-  definitions: 
-    Specification: 
-      type: object
-      properties:
-        name: 
-          type: string
-        description: 
-          type: string
-    Sessions:
-      type: object
-      properties:
-        email: 
-          type: string
-          description: Email
-        password:
-          type: string
-          description: Password
-  
-  components: 
-    securitySchemes:
-      bearerAuth:
-        type: http
-        scheme: bearer
-        bearerFormat: JWT
+  /users:
+    post:
+      tags:
+        - User
+      summary: Create a new user
+      description: Create a new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: 
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                driver_license:
+                  type: string
+      responses:
+        201:
+          description: Created
+  /users/avatar:
+    patch:
+      tags:
+        - User
+      summary: Add an avatar
+      description: Add an avatar
+      security: 
+        - bearerAuth: []
+      requestBody: 
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: 
+                  type: string
+                  format: binary
+      responses:
+        204:
+          description: No Content
+
+definitions: 
+  Specification: 
+    type: object
+    properties:
+      name: 
+        type: string
+      description: 
+        type: string
+  Sessions:
+    type: object
+    properties:
+      email: 
+        type: string
+        description: Email
+      password:
+        type: string
+        description: Password
+
+components: 
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
