@@ -12,7 +12,7 @@ paths:
       summary: Create a new category
       description: >
         Create a new car category. 
-        Must be authenticated and an admin user.
+        Must be authenticated and an *admin* user.
       security: 
         - bearerAuth: []
       requestBody:
@@ -31,6 +31,80 @@ paths:
               SUV:
                 $ref: '#definitions/examples/Category/SUV'
       responses:
+        '201':
+          description: Created
+        '400': 
+          description: User must be an admin/ Category Already Exists
+          content:
+            application/json:
+              schema:
+                $ref: '#definitions/schemas/AdminError'
+              examples:
+                AdminError:
+                  $ref: '#definitions/examples/AdminError'
+                CategoryExist:
+                  value:
+                    message: Category already exists!
+
+        '401':
+          description: Authentication problems
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#definitions/schemas/AuthError/InvalidToken'
+                  - $ref: '#definitions/schemas/AuthError/UserNotExist'
+              examples:
+                InvalidToken:
+                  $ref: '#definitions/examples/AuthError/InvalidToken'
+                UserNotExist:
+                  $ref: '#definitions/examples/AuthError/UserNotExist'
+    get:
+      tags:
+        - Category
+      summary: List all categories
+      description: List all car categories.
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json: 
+              schema: 
+                type: array
+                items: 
+                  type: object
+                  properties :
+                    id:
+                      type: string
+                    name: 
+                      type: string
+                    description: 
+                      type: string
+                    created_at: 
+                      type: string
+              examples:
+                Sedan-SUV:
+                    $ref: '#/definitions/examples/Category/Response/Sedan-SUV'
+  /categories/import: 
+    post:
+      tags: 
+        - Category
+      summary: Upload a new category
+      description: >
+        Upload a csv file to create new categories. 
+        Must be authenticated and an *admin* user.
+      security: 
+        - bearerAuth: []
+      requestBody: 
+        content:
+          multipart/form-data:
+            schema: 
+              type: object
+              properties: 
+                file: 
+                  type: string
+                  format: binary
+      responses: 
         '201':
           description: Created
         '400': 
@@ -55,87 +129,96 @@ paths:
                   $ref: '#definitions/examples/AuthError/InvalidToken'
                 UserNotExist:
                   $ref: '#definitions/examples/AuthError/UserNotExist'
-        '500':
-          description: Category already exists
-    get:
-      tags:
-        - Category
-      summary: List all categories
-      description: List all categories
-      responses:
-        200:
-          description: Success
-          content:
-            application/json: 
-              schema: 
-                type: array
-                items: 
-                  type: object
-                  properties : 
-                    name: 
-                      type: string
-                    description: 
-                      type: string
-  /categories/import: 
-    post:
-      tags: 
-        - Category
-      summary: Upload a new category
-      description: Upload a new category
-      security: 
-        - bearerAuth: []
-      requestBody: 
-        content:
-          multipart/form-data:
-            schema: 
-              type: object
-              properties: 
-                file: 
-                  type: string
-                  format: binary
-      responses: 
-        201:
-          description: Created
+  
   /specifications:
     post:
       tags: 
-        - Specifications
+        - Specification
       summary: Create a specification
-      description: Create a new specification
+      description: > 
+        Create a new car specification.
+        Must be authenticated and an *admin* user.
       security: 
         - bearerAuth: []
       requestBody:
         content:
           application/json:
             schema: 
-              $ref: '#/definitions/schemas/Specifications'
+              $ref: '#definitions/schemas/Specification'
+            examples:
+              4-Door:
+                $ref: '#/definitions/examples/Specification/4-Door'
       responses: 
-        201: 
+        '201': 
           description: Created
-        500:
+        '400': 
+          description: User must be an admin / Specification already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#definitions/schemas/AdminError'
+              examples:
+                AdminError:
+                  $ref: '#definitions/examples/AdminError'
+                SpecificationExist:
+                  value:
+                    message: Specification already exists!
+        '401':
+          description: Authentication problems
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#definitions/schemas/AuthError/InvalidToken'
+                  - $ref: '#definitions/schemas/AuthError/UserNotExist'
+              examples:
+                InvalidToken:
+                  $ref: '#definitions/examples/AuthError/InvalidToken'
+                UserNotExist:
+                  $ref: '#definitions/examples/AuthError/UserNotExist'
+        '500':
           description: Specification already exists
+  
   /sessions:
     post:
       tags: 
         - Session
       summary: Authenticate a user
-      description: Authenticate a user
+      description: > 
+        Authenticate an already registered user.
+        Create a user authentication token.
       requestBody:
         content:
           application/json: 
             schema:
-              $ref: '#/definitions/schemas/Sessions'
+              type: object
+              properties:
+                email: 
+                  type: string
+                password:
+                  type: string
+            example:
+              email: name@email.com
+              password: '1234'
       responses:
-        200: 
+        '200': 
           description: OK
-        400:
-          description: Email or password incorrect!
+          content:
+            application/json:
+              schema:
+                $ref: '#definitions/schemas/Session'
+              examples:
+                Response:
+                  $ref: '#definitions/examples/Session/Response'
+        '400':
+          description: Email or password incorrect
+  
   /users:
     post:
       tags:
         - User
       summary: Create a new user
-      description: Create a new user
+      description: Create a new user.
       requestBody:
         content:
           application/json:
@@ -150,15 +233,22 @@ paths:
                   type: string
                 driver_license:
                   type: string
+            examples:
+              Response:
+                $ref: '#definitions/examples/User/Response'
       responses:
-        201:
+        '201':
           description: Created
+        '400':
+          description: Email already exists
   /users/avatar:
     patch:
       tags:
         - User
       summary: Add an avatar
-      description: Add an avatar
+      description: > 
+        Add a user avatar.
+        Must be authenticated.
       security: 
         - bearerAuth: []
       requestBody: 
@@ -171,73 +261,158 @@ paths:
                   type: string
                   format: binary
       responses:
-        204:
+        '204':
           description: No Content
+        '401':
+          description: Authentication problems
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#definitions/schemas/AuthError/InvalidToken'
+                  - $ref: '#definitions/schemas/AuthError/UserNotExist'
+              examples:
+                InvalidToken:
+                  $ref: '#definitions/examples/AuthError/InvalidToken'
+                UserNotExist:
+                  $ref: '#definitions/examples/AuthError/UserNotExist'
+  
   /cars:
     post:
       tags:
-        - Cars
+        - Car
       summary: Create a new Car
-      description: Create a new Car
+      description: >
+        Create a new Car.
+        Must be authenticated and an *admin* user.
       security:
         - bearerAuth: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#definitions/schemas/Cars'
+              $ref: '#definitions/schemas/Car/Request'
             examples:
-              Car:
-                $ref: '#definitions/examples/Car'
-                
+              BMW-i7:
+                $ref: '#definitions/examples/Car/BMW-i7'
+              Ferrari812:
+                $ref: '#definitions/examples/Car/Ferrari812'
       responses:
-        201:
+        '201':
           description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#definitions/schemas/Car/Response'
+              examples:
+                BMW-i7:
+                  $ref: '#definitions/examples/Car/Response/BMW-i7'
+                Ferrari812:
+                  $ref: '#definitions/examples/Car/Response/Ferrari812'
+        '400': 
+          description: User must be an admin/ Car already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#definitions/schemas/AdminError'
+              examples:
+                AdminError:
+                  $ref: '#definitions/examples/AdminError'
+                CarExist:
+                  value: 
+                    message: Car already exists!
+        '401':
+          description: Authentication problems
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#definitions/schemas/AuthError/InvalidToken'
+                  - $ref: '#definitions/schemas/AuthError/UserNotExist'
+              examples:
+                InvalidToken:
+                  $ref: '#definitions/examples/AuthError/InvalidToken'
+                UserNotExist:
+                  $ref: '#definitions/examples/AuthError/UserNotExist'
   /cars/available:
     get:
       tags: 
-        - Cars
-      summary: Get all cars available
-      description: Get all cars available
+        - Car
+      summary: Get cars available
+      description: Get all available cars for rent.
       responses:
         '200':
-          description: Created
-  
-      
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#definitions/schemas/Car/Response'
+              examples:
+                BMW-Ferrari:
+                  $ref: '#definitions/examples/Car/Response/BMW-Ferrari'
+                
 
 definitions:
   schemas:
-    Specifications: 
+    Specification: 
       type: object
       properties:
         name: 
           type: string
         description: 
           type: string
-    Sessions:
+    Session:
       type: object
       properties:
-        email: 
+        token: 
           type: string
-          description: Email
-        password:
-          type: string
-          description: Password
-    Cars:
-      type: object
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        daily_rate:
-          type: number
-        license_plate:
-          type: string
-        fine_amount:
-          type: number
-        brand:
-          type: string
+        user:
+          type: object
+          properties:
+            name:
+              type: string
+            email: 
+              type: string
+    Car:
+      Request:
+        type: object
+        properties:
+          name:
+            type: string
+          description:
+            type: string
+          daily_rate:
+            type: number
+          license_plate:
+            type: string
+          fine_amount:
+            type: number
+          brand:
+            type: string
+      Response:
+        type: object
+        properties:
+          id:
+            type: string
+          available: 
+            type: boolean
+          name:
+            type: string
+          description:
+            type: string
+          daily_rate:
+            type: number
+          license_plate:
+            type: string
+          fine_amount:
+            type: number
+          brand:
+            type: string
+          created_at:
+            type: string
+
     AuthError:
       InvalidToken:
         type: object
@@ -256,14 +431,6 @@ definitions:
           type: string
   
   examples:
-    Car: 
-      value:
-        name: BMW i7
-        description: Corre muito
-        daily_rate: 220000
-        license_plate: ADV-1226
-        fine_amount: 22000
-        brand: BMW
     Category:
       Sedan:
         value:
@@ -273,6 +440,97 @@ definitions:
         value:
           name: SUV
           description: SUV car category
+      Response:
+        Sedan-SUV:
+          value:
+            - id: 122ba3e7-adf3-4b4b-afbe-2641a378891f
+              name: Sedan
+              description: Sedan car category
+              created_at: 2021-07-09T22:40:32.952Z
+            - id: 78a3d7bd-4092-4de2-8908-cce1366f1d4e
+              name: SUV
+              description: SUV car category
+              created_at: 2021-07-09T22:40:32.952Z
+    Specification:
+      4-Door:
+        value:
+          name: Four-Door
+          description: Four-Door car
+    Session:
+      Response:
+        value:
+          token: jdsahdlsaidasuf8hasyfya9dfuahfsaiuofh
+          user:
+            name: name
+            email: name@email.com
+    User:
+      Response:
+        value:
+          name: Name
+          email: name@email.com
+          password: '1234'
+          driver_license: l3565722
+    Car:
+      BMW-i7:
+        value:
+          name: BMW i7
+          description: Runs a lot
+          daily_rate: 220000
+          license_plate: ADV-1226
+          fine_amount: 22000
+          brand: BMW
+      Ferrari812:
+        value:
+          name: Ferrari 812
+          description: Runs a lot
+          daily_rate: 220000
+          license_plate: ABC-1226
+          fine_amount: 22000
+          brand: Ferrari
+      Response:
+        BMW-i7:
+          value:
+            id: cdc5aa03-12f6-4302-be2d-63b6a94d6301
+            available: true
+            name: BMW i7
+            description: Runs a lot
+            daily_rate: 220000
+            license_plate: ADV-1226
+            fine_amount: 22000
+            brand: BMW
+            created_at: 2021-07-09T22:40:32.952Z
+        Ferrari812:
+          value:
+            id: b534a344-b533-4929-81c8-eb44b8d9ab9d
+            available: true
+            name: Ferrari 812
+            description: Runs a lot
+            daily_rate: 220000
+            license_plate: ABC-1226
+            fine_amount: 22000
+            brand: Ferrari 812
+            created_at: 2021-07-09T22:40:32.952Z
+        BMW-Ferrari:
+          value:
+            - id: cdc5aa03-12f6-4302-be2d-63b6a94d6301
+              available: true
+              name: BMW i7
+              description: Runs a lot
+              daily_rate: 220000
+              license_plate: ADV-1226
+              fine_amount: 22000
+              brand: BMW
+              created_at: 2021-07-09T22:40:32.952Z
+            - id: b534a344-b533-4929-81c8-eb44b8d9ab9d
+              available: true
+              name: Ferrari 812
+              description: Runs a lot
+              daily_rate: 220000
+              license_plate: ABC-1226
+              fine_amount: 22000
+              brand: Ferrari 812
+              created_at: 2021-07-09T22:40:32.952Z
+
     AuthError:
       InvalidToken:
         value:
@@ -283,7 +541,6 @@ definitions:
     AdminError:
       value:
         message: User is not an admin
-
 
 
 components: 
