@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info: 
   title: TakeACar Documentation
-  description: This is an API
+  description: This is an API to manage **Car Rentals**.
   version: 1.0.0
 
 paths:
@@ -9,8 +9,10 @@ paths:
     post:
       tags: 
         - Category
-      summary: Create a category
-      description: Create a new category
+      summary: Create a new category
+      description: >
+        Create a new car category. 
+        Must be authenticated and an admin user.
       security: 
         - bearerAuth: []
       requestBody:
@@ -23,14 +25,38 @@ paths:
                   type: string
                 description:
                   type: string
-              example:
-                name: Category's name
-                description: Category's description
+            examples: 
+              Sedan:
+                $ref: '#definitions/examples/Category/Sedan'
+              SUV:
+                $ref: '#definitions/examples/Category/SUV'
       responses:
-        201:
+        '201':
           description: Created
-        500:
-          description": Category already exists
+        '400': 
+          description: User must be an admin
+          content:
+            application/json:
+              schema:
+                $ref: '#definitions/schemas/AdminError'
+              examples:
+                AdminError:
+                  $ref: '#definitions/examples/AdminError'
+        '401':
+          description: Authentication problems
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#definitions/schemas/AuthError/InvalidToken'
+                  - $ref: '#definitions/schemas/AuthError/UserNotExist'
+              examples:
+                InvalidToken:
+                  $ref: '#definitions/examples/AuthError/InvalidToken'
+                UserNotExist:
+                  $ref: '#definitions/examples/AuthError/UserNotExist'
+        '500':
+          description: Category already exists
     get:
       tags:
         - Category
@@ -82,7 +108,7 @@ paths:
         content:
           application/json:
             schema: 
-              $ref: '#/definitions/Specification'
+              $ref: '#/definitions/schemas/Specifications'
       responses: 
         201: 
           description: Created
@@ -98,7 +124,7 @@ paths:
         content:
           application/json: 
             schema:
-              $ref: '#/definitions/Sessions'
+              $ref: '#/definitions/schemas/Sessions'
       responses:
         200: 
           description: OK
@@ -147,24 +173,118 @@ paths:
       responses:
         204:
           description: No Content
+  /cars:
+    post:
+      tags:
+        - Cars
+      summary: Create a new Car
+      description: Create a new Car
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#definitions/schemas/Cars'
+            examples:
+              Car:
+                $ref: '#definitions/examples/Car'
+                
+      responses:
+        201:
+          description: Created
+  /cars/available:
+    get:
+      tags: 
+        - Cars
+      summary: Get all cars available
+      description: Get all cars available
+      responses:
+        '200':
+          description: Created
+  
+      
 
-definitions: 
-  Specification: 
-    type: object
-    properties:
-      name: 
-        type: string
-      description: 
-        type: string
-  Sessions:
-    type: object
-    properties:
-      email: 
-        type: string
-        description: Email
-      password:
-        type: string
-        description: Password
+definitions:
+  schemas:
+    Specifications: 
+      type: object
+      properties:
+        name: 
+          type: string
+        description: 
+          type: string
+    Sessions:
+      type: object
+      properties:
+        email: 
+          type: string
+          description: Email
+        password:
+          type: string
+          description: Password
+    Cars:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        daily_rate:
+          type: number
+        license_plate:
+          type: string
+        fine_amount:
+          type: number
+        brand:
+          type: string
+    AuthError:
+      InvalidToken:
+        type: object
+        properties:
+          message:
+            type: string
+      UserNotExist:
+        type: object
+        properties:
+          message:
+            type: string
+    AdminError:
+      type: object
+      properties:
+        message: 
+          type: string
+  
+  examples:
+    Car: 
+      value:
+        name: BMW i7
+        description: Corre muito
+        daily_rate: 220000
+        license_plate: ADV-1226
+        fine_amount: 22000
+        brand: BMW
+    Category:
+      Sedan:
+        value:
+          name: Sedan
+          description: Sedan car category
+      SUV:
+        value:
+          name: SUV
+          description: SUV car category
+    AuthError:
+      InvalidToken:
+        value:
+          message: Invalid token
+      UserNotExist: 
+        value:
+          message: User does not exist
+    AdminError:
+      value:
+        message: User is not an admin
+
+
 
 components: 
   securitySchemes:
