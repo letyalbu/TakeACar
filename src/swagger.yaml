@@ -42,7 +42,7 @@ paths:
               examples:
                 AdminError:
                   $ref: '#definitions/examples/AdminError'
-                CategoryExist:
+                BadRequest:
                   value:
                     message: Category already exists!
 
@@ -160,7 +160,7 @@ paths:
               examples:
                 AdminError:
                   $ref: '#definitions/examples/AdminError'
-                SpecificationExist:
+                BadRequest:
                   value:
                     message: Specification already exists!
         '401':
@@ -234,8 +234,8 @@ paths:
                 driver_license:
                   type: string
             examples:
-              Response:
-                $ref: '#definitions/examples/User/Response'
+              User:
+                $ref: '#definitions/examples/User'
       responses:
         '201':
           description: Created
@@ -318,7 +318,7 @@ paths:
               examples:
                 AdminError:
                   $ref: '#definitions/examples/AdminError'
-                CarExist:
+                BadRequest:
                   value: 
                     message: Car already exists!
         '401':
@@ -352,6 +352,59 @@ paths:
               examples:
                 BMW-Ferrari:
                   $ref: '#definitions/examples/Car/Response/BMW-Ferrari'
+  /cars/images/{car_id}:
+    post:
+      tags:
+        - Car
+      summary: Upload images
+      description: >
+        Upload car images.
+        Must be authenticated and an *admin* user.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          description: Car id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '201':
+          description: Created
+        '400': 
+          description: User must be an admin
+          content:
+            application/json:
+              schema:
+                $ref: '#definitions/schemas/AdminError'
+              examples:
+                AdminError:
+                  $ref: '#definitions/examples/AdminError'
+        '401':
+          description: Authentication problems
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#definitions/schemas/AuthError/InvalidToken'
+                  - $ref: '#definitions/schemas/AuthError/UserNotExist'
+              examples:
+                InvalidToken:
+                  $ref: '#definitions/examples/AuthError/InvalidToken'
+                UserNotExist:
+                  $ref: '#definitions/examples/AuthError/UserNotExist'
                 
 
 definitions:
@@ -464,12 +517,11 @@ definitions:
             name: name
             email: name@email.com
     User:
-      Response:
-        value:
-          name: Name
-          email: name@email.com
-          password: '1234'
-          driver_license: l3565722
+      value:
+        name: Name
+        email: name@email.com
+        password: '1234'
+        driver_license: l3565722
     Car:
       BMW-i7:
         value:
