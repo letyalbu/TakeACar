@@ -34,7 +34,7 @@ describe("List Cars", () => {
       name: "Car 2",
       description: "Car description",
       daily_rate: 110,
-      license_plate: "DEF-1234",
+      license_plate: "DEF-1235",
       fine_amount: 100,
       brand: "Car brand test",
       category_id: "category_id",
