@@ -6,3 +6,4 @@ tmp/carImages/*
 !tmp/carImages/.gitkeep
 yarn-error.log
 yarn.lock
+coverage
