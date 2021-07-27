@@ -19,7 +19,7 @@ const createCarSpecificationController = new CreateCarSpecificationController();
 const uploadCarImagesController = new UploadCarImagesController();
 const removeCarImagesController = new RemoveCarImagesController();
 
-const uploadCarImages = multer(uploadConfig.upload("./tmp/carImages"));
+const uploadCarImages = multer(uploadConfig);
 
 carsRoutes.post(
   "/",
