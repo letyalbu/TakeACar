@@ -7,3 +7,4 @@ tmp/carImages/*
 yarn-error.log
 yarn.lock
 coverage
+.env
