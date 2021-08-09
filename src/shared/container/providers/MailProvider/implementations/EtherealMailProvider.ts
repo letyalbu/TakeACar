@@ -1,7 +1,7 @@
 import fs from "fs";
 import handlebars from "handlebars";
 import nodemailer, { Transporter } from "nodemailer";
-import { inject, injectable } from "tsyringe";
+import { injectable } from "tsyringe";
 
 import { IMailProvider } from "../IMailProvider";
 
